@@ -1,5 +1,8 @@
 {
   "rust-analyzer.server.extraEnv": {
     "LANG": "zh_CN.UTF-8"
-  }
+  },
+  "rust-analyzer.completion.autoimport.enable": true,
+  "rust-analyzer.imports.granularity.group": "module",
+  "rust-analyzer.imports.prefix": "crate"
 }
