@@ -1,13 +1,36 @@
 use std::net::TcpListener;
 use email::configuration::{DatabaseSettings, get_configuration};
 use email::startup::run;
+use email::telemetry::{get_subscriber, init_subscriber};
+use secrecy::ExposeSecret;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
+use once_cell::sync::Lazy;
 
 pub struct TestApp {
     pub address: String,
     pub db_pool: PgPool,
 }
+
+static TRACING: Lazy<()> = Lazy::new(|| {
+    let default_filter_level = "debug".to_string();
+    let subscriber_name = "test".to_string();
+    if std::env::var("TEST_LOG").is_ok() {
+        let subscriber = get_subscriber(
+            subscriber_name,
+            default_filter_level,
+            std::io::stdout,
+        );
+        init_subscriber(subscriber);
+    } else {
+        let subscriber = get_subscriber(
+            subscriber_name,
+            default_filter_level,
+            std::io::sink,
+        );
+        init_subscriber(subscriber);
+    }
+});
 
 #[tokio::test]
 async fn health_check_works() {
@@ -28,7 +51,7 @@ async fn health_check_works() {
 }
 
 pub async fn configuration_database(config: &DatabaseSettings) -> PgPool {
-    let mut connection = PgConnection::connect(&config.connection_string_without_db())
+    let mut connection = PgConnection::connect(&config.connection_string_without_db().expose_secret())
         .await
         .expect("Failed to connect to Postgres");
     connection
@@ -36,7 +59,7 @@ pub async fn configuration_database(config: &DatabaseSettings) -> PgPool {
         .await
         .expect("Failed to create database.");
 
-    let connection_pool = PgPool::connect(&config.connection_string()).await.expect("Failed to connect to Postgres.");
+    let connection_pool = PgPool::connect(&config.connection_string().expose_secret()).await.expect("Failed to connect to Postgres.");
     sqlx::migrate!("./migrations")
         .run(&connection_pool)
         .await
@@ -46,6 +69,10 @@ pub async fn configuration_database(config: &DatabaseSettings) -> PgPool {
 }
 
 async fn spawn_app() -> TestApp {
+    Lazy::force(&TRACING);
+    // let subscriber = get_subscriber("email".into(), "info".into());
+    // init_subscriber(subscriber);
+
     let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind random port");
     let port = listener.local_addr().unwrap().port();
     let address = format!("http://127.0.0.1:{}", port);
@@ -65,17 +92,13 @@ async fn spawn_app() -> TestApp {
 #[tokio::test]
 async fn subscribe_returns_200_for_valid_form_data() {
     // Arrange
-    let TestApp { address, .. } = spawn_app().await;
-    let configuration = get_configuration().expect("Failed to read configuration.");
-    let connection_string = configuration.database.connection_string();
-    let mut connection = PgConnection::connect(&connection_string).await.expect("Failed to connect to Pos");
+    let app = spawn_app().await;
+    let client = reqwest::Client::new();
 
     // Act
-    let client = reqwest::Client::new();
     let body = "name=le%20guin&email=ursula_le_guin%40gmail.com";
-
     let response = client
-        .post(&format!("{}/subscriptions", &address))
+        .post(&format!("{}/subscriptions", &app.address))
         .header("Content-Type", "application/x-www-form-urlencoded")
         .body(body)
         .send()
@@ -85,8 +108,8 @@ async fn subscribe_returns_200_for_valid_form_data() {
     // Assert
     assert_eq!(200, response.status().as_u16());
 
-    let saved = sqlx::query!("SELECT email, name FROM subscriptions",)
-        .fetch_one(&mut connection)
+    let saved = sqlx::query!("SELECT email, name FROM subscriptions")
+        .fetch_one(&app.db_pool)
         .await
         .expect("Failed to fetch saved subscription.");
     assert_eq!(saved.email, "ursula_le_guin@gmail.com");
