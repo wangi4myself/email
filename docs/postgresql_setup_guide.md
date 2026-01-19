@@ -68,6 +68,28 @@ brew install postgresql@16
 brew services start postgresql@16
 ```
 
+**服务管理命令：**
+
+| 命令 | 作用 |
+|------|------|
+| `brew services start postgresql@16` | 启动服务（开机自启） |
+| `brew services stop postgresql@16` | 停止服务 |
+| `brew services restart postgresql@16` | 重启服务 |
+| `brew services list` | 查看所有服务状态 |
+| `brew services info postgresql@16` | 查看 PostgreSQL 服务详情 |
+
+**临时运行（不设置开机自启）：**
+```bash
+# 使用 pg_ctl 启动
+pg_ctl -D /opt/homebrew/var/postgresql@16 start
+
+# 使用 pg_ctl 停止
+pg_ctl -D /opt/homebrew/var/postgresql@16 stop
+
+# 或者前台运行（Ctrl+C 停止）
+/opt/homebrew/opt/postgresql@16/bin/postgres -D /opt/homebrew/var/postgresql@16
+```
+
 ---
 
 ### 方案四：OrbStack（付费/免费个人版）
