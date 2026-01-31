@@ -92,6 +92,44 @@ docker rmi <image_id>
 docker build --tag <name> --file Dockerfile .
 ```
 
+## docker build 命令详解
+
+```bash
+docker build --tag email --file Dockerfile .
+```
+
+| 部分 | 含义 |
+|------|------|
+| `docker build` | Docker 构建镜像的主命令 |
+| `--tag email` | 给构建的镜像起名为 `email`（也可以写成 `-t email`） |
+| `--file Dockerfile` | 指定使用哪个 Dockerfile（也可以写成 `-f Dockerfile`） |
+| `.` | **构建上下文**，指当前目录 |
+
+### 参数说明
+
+#### `--tag email`
+- 镜像的名称标签
+- 之后可以用 `docker run email` 来运行这个镜像
+- 也可以加版本号：`--tag email:1.0`
+
+#### `--file Dockerfile`
+- 默认情况下 Docker 会在当前目录找 `Dockerfile`
+- 如果文件名就是 `Dockerfile`，这个参数可以省略
+- 当使用其他名称（如 `Dockerfile.dev`）时必须指定
+
+#### `.`（构建上下文）
+- 告诉 Docker 把**当前目录**的文件发送给 Docker 守护进程
+- Dockerfile 中的 `COPY`、`ADD` 命令都是相对于这个上下文路径
+- 例如 `COPY ./target/release/email /app` 会从当前目录复制文件
+
+### 简化写法
+
+如果 Dockerfile 就在当前目录且名称为 `Dockerfile`，可以简化为：
+
+```bash
+docker build -t email .
+```
+
 ## 实用技巧
 
 ```bash
