@@ -13,14 +13,14 @@ async fn main() -> std::io::Result<()> {
     let configuration = get_configuration().expect("Failed to read configuration.");
 
     // 调试：打印数据库连接信息（不包含密码）
-    tracing::info!(
-        "Database config: host={}, port={}, user={}, db={}, ssl={}",
-        configuration.database.host,
-        configuration.database.port,
-        configuration.database.username,
-        configuration.database.database_name,
-        configuration.database.require_ssl
-    );
+    // tracing::info!(
+    //     "Database config: host={}, port={}, user={}, db={}, ssl={}",
+    //     configuration.database.host,
+    //     configuration.database.port,
+    //     configuration.database.username,
+    //     configuration.database.database_name,
+    //     configuration.database.require_ssl
+    // );
 
     let connection_pool =  PgPoolOptions::new().acquire_timeout(std::time::Duration::from_secs(2)).connect_lazy_with(configuration.database.with_db());
 

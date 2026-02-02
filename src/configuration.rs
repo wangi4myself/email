@@ -86,6 +86,7 @@ impl DatabaseSettings {
             .username(&self.username)
             .ssl_mode(ssl_mode)
             .password(self.password.expose_secret())
+            .database("postgres")
     }
 
     pub fn with_db(&self) -> PgConnectOptions {
