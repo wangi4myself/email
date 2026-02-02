@@ -2,12 +2,13 @@ use email::configuration::get_configuration;
 use email::startup::run;
 use email::telemetry::{get_subscriber, init_subscriber};
 // use secrecy::ExposeSecret;
+use email::email_client::EmailClient;
 use sqlx::postgres::PgPoolOptions;
 use std::net::TcpListener;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    let subscriber = get_subscriber("email".into(), "info".into(),std::io::stdout);
+    let subscriber = get_subscriber("email".into(), "info".into(), std::io::stdout);
     init_subscriber(subscriber);
 
     let configuration = get_configuration().expect("Failed to read configuration.");
@@ -22,10 +23,23 @@ async fn main() -> std::io::Result<()> {
     //     configuration.database.require_ssl
     // );
 
-    let connection_pool =  PgPoolOptions::new().acquire_timeout(std::time::Duration::from_secs(2)).connect_lazy_with(configuration.database.with_db());
+    let connection_pool = PgPoolOptions::new()
+        .acquire_timeout(std::time::Duration::from_secs(2))
+        .connect_lazy_with(configuration.database.with_db());
 
-    let address = format!("{}:{}", configuration.application.host,configuration.application.port);
+    let sender_email = configuration
+        .email_client
+        .sender_email()
+        .expect("Invalid sender email address in configuration.");
+
+    let email_client = EmailClient::new(configuration.email_client.base_url, sender_email);
+
+    let address = format!(
+        "{}:{}",
+        configuration.application.host, configuration.application.port
+    );
     let listener = TcpListener::bind(address)?;
     println!("Listening on port {}", configuration.application.port);
-    run(listener, connection_pool)?.await
+    run(listener, connection_pool, email_client)?.await?;
+    Ok(())
 }
