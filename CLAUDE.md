@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 学习者背景
+
+本项目是一个 Rust 系统学习项目。项目维护者是一名熟悉 **Node.js / TypeScript** 的开发者。
+
+**Claude 指导原则：**
+- 当解释 Rust 概念时，请尽量**类比 TypeScript** 进行说明
+- 对比 Rust 和 TypeScript 的相似与不同之处
+- 使用开发者熟悉的 Node.js 生态概念来建立理解桥梁
+
 ## 常用命令
 
 ### 构建与运行

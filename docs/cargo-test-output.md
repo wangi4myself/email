@@ -111,3 +111,52 @@ cargo test --test domain   # ❌ 不会工作
 # 正确：用名称过滤来运行 src/ 下的模块测试
 cargo test domain::        # ✅ 运行 domain 模块的所有测试
 ```
+
+---
+
+## `cargo test --lib` 与 `cargo test` 的区别
+
+### `cargo test email_client --lib`
+
+只运行 **库代码 (src/)** 中匹配 `email_client` 的测试：
+
+```
+src/
+├── lib.rs
+├── email_client.rs  ← 只运行这里的 #[cfg(test)] 模块
+└── ...
+```
+
+### `cargo test email_client`
+
+运行**所有位置**中匹配 `email_client` 的测试：
+
+```
+src/                       ← 库测试
+├── email_client.rs        ✅
+tests/                     ← 集成测试
+├── email_client.rs        ✅ (如果存在)
+examples/                  ← 示例测试
+benches/                   ← 基准测试
+```
+
+### 常用过滤选项
+
+| 命令 | 作用 |
+|------|------|
+| `cargo test --lib` | 只运行 src/ 下的单元测试 |
+| `cargo test --test health_check` | 只运行 tests/health_check.rs |
+| `cargo test --bins` | 只运行 binary 中的测试 |
+| `cargo test --doc` | 只运行文档测试 |
+
+### TypeScript 类比
+
+```bash
+# Rust
+cargo test --lib              # 类似只测 src/
+cargo test --test integration # 类似只测 tests/
+
+# Node.js (Jest)
+jest src/                     # 只跑 src 目录
+jest tests/                   # 只跑 tests 目录
+```

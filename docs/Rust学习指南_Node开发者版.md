@@ -22,18 +22,19 @@
 
 #### 核心概念对比
 
-| 概念 | Node.js/JavaScript | Rust |
-|------|-------------------|------|
-| **内存管理** | 垃圾回收(GC) | 所有权系统(Ownership) |
-| **类型系统** | 动态类型 + TypeScript可选 | 静态强类型 + 类型推导 |
-| **并发模型** | 事件循环 + 单线程 | 多线程 + async/await |
+| 概念         | Node.js/JavaScript            | Rust                     |
+| ------------ | ----------------------------- | ------------------------ |
+| **内存管理** | 垃圾回收(GC)                  | 所有权系统(Ownership)    |
+| **类型系统** | 动态类型 + TypeScript可选     | 静态强类型 + 类型推导    |
+| **并发模型** | 事件循环 + 单线程             | 多线程 + async/await     |
 | **错误处理** | try/catch + Promise rejection | Result<T, E> + Option<T> |
-| **包管理** | npm/yarn/pnpm | Cargo |
-| **运行环境** | V8 引擎 | 直接编译为机器码 |
+| **包管理**   | npm/yarn/pnpm                 | Cargo                    |
+| **运行环境** | V8 引擎                       | 直接编译为机器码         |
 
 #### 必学核心概念
 
 1. **所有权系统 (Ownership)** - Rust 最独特的特性
+
    ```rust
    // JavaScript: 自动垃圾回收
    let data = { name: "test" };
@@ -45,6 +46,7 @@
    ```
 
 2. **借用和引用 (Borrowing)**
+
    ```rust
    // 不可变借用
    let s = String::from("hello");
@@ -57,6 +59,7 @@
 
 3. **生命周期 (Lifetimes)** - 编译器确保引用有效性
 4. **错误处理** - Result 和 Option
+
    ```rust
    // JavaScript
    try {
@@ -78,12 +81,12 @@
 
 #### Rust Web 框架对比
 
-| 框架 | 类似 Node.js 框架 | 特点 | 学习难度 |
-|------|------------------|------|---------|
-| **Axum** | Express.js | 现代化、基于 Tokio、类型安全 | ⭐⭐⭐ |
-| **Actix-web** | Fastify | 高性能、Actor 模型 | ⭐⭐⭐⭐ |
-| **Rocket** | NestJS | 全功能、易用、宏魔法 | ⭐⭐ |
-| **Warp** | Koa | 函数式、组合式 | ⭐⭐⭐⭐ |
+| 框架          | 类似 Node.js 框架 | 特点                         | 学习难度 |
+| ------------- | ----------------- | ---------------------------- | -------- |
+| **Axum**      | Express.js        | 现代化、基于 Tokio、类型安全 | ⭐⭐⭐   |
+| **Actix-web** | Fastify           | 高性能、Actor 模型           | ⭐⭐⭐⭐ |
+| **Rocket**    | NestJS            | 全功能、易用、宏魔法         | ⭐⭐     |
+| **Warp**      | Koa               | 函数式、组合式               | ⭐⭐⭐⭐ |
 
 **推荐起点**: Axum (2024 年最流行的选择)
 
@@ -91,10 +94,10 @@
 
 ```javascript
 // Express.js
-const express = require('express');
+const express = require("express");
 const app = express();
 
-app.get('/users/:id', async (req, res) => {
+app.get("/users/:id", async (req, res) => {
   const user = await getUserById(req.params.id);
   res.json(user);
 });
@@ -154,7 +157,7 @@ pub fn process_image(data: &[u8]) -> Vec<u8> {
 
 ```javascript
 // JavaScript 中使用
-import init, { process_image } from './pkg/image_processor.js';
+import init, { process_image } from "./pkg/image_processor.js";
 
 await init();
 const processed = process_image(imageData);
@@ -273,6 +276,7 @@ const processed = process_image(imageData);
 ### 初级项目 (入门阶段)
 
 1. **CLI 工具系列**
+
    ```bash
    # 替代常用 Node.js CLI 工具
    - 文件搜索工具 (替代 find)
@@ -373,13 +377,13 @@ fn index() -> &'static str {
 
 #### 数据库
 
-| Crate | 类似 Node.js 库 | 特点 |
-|-------|----------------|------|
-| **SQLx** | node-postgres | 编译时 SQL 检查 |
-| **Diesel** | TypeORM | 强类型 ORM |
-| **SeaORM** | Prisma | 异步 ORM,易用 |
-| **mongodb** | mongodb | 官方驱动 |
-| **redis** | ioredis | 异步 Redis 客户端 |
+| Crate       | 类似 Node.js 库 | 特点              |
+| ----------- | --------------- | ----------------- |
+| **SQLx**    | node-postgres   | 编译时 SQL 检查   |
+| **Diesel**  | TypeORM         | 强类型 ORM        |
+| **SeaORM**  | Prisma          | 异步 ORM,易用     |
+| **mongodb** | mongodb         | 官方驱动          |
+| **redis**   | ioredis         | 异步 Redis 客户端 |
 
 #### 推荐组合
 
@@ -399,6 +403,7 @@ tracing = "0.1"        # 日志追踪
 #### 工具链
 
 1. **wasm-pack** - 构建和发布
+
    ```bash
    cargo install wasm-pack
    wasm-pack build --target web
@@ -412,12 +417,12 @@ tracing = "0.1"        # 日志追踪
 
 #### 前端框架
 
-| 框架 | 类似 | 特点 | 成熟度 |
-|------|------|------|--------|
-| **Yew** | React | 组件化、虚拟 DOM | ⭐⭐⭐⭐ |
-| **Leptos** | SolidJS | 细粒度响应式 | ⭐⭐⭐ (新兴) |
-| **Dioxus** | React | 跨平台(Web/桌面/移动) | ⭐⭐⭐ |
-| **Sycamore** | Svelte | 无虚拟 DOM | ⭐⭐⭐ |
+| 框架         | 类似    | 特点                  | 成熟度        |
+| ------------ | ------- | --------------------- | ------------- |
+| **Yew**      | React   | 组件化、虚拟 DOM      | ⭐⭐⭐⭐      |
+| **Leptos**   | SolidJS | 细粒度响应式          | ⭐⭐⭐ (新兴) |
+| **Dioxus**   | React   | 跨平台(Web/桌面/移动) | ⭐⭐⭐        |
+| **Sycamore** | Svelte  | 无虚拟 DOM            | ⭐⭐⭐        |
 
 #### 示例: Yew 组件
 
@@ -503,12 +508,14 @@ rustup update
 #### VS Code (推荐)
 
 必装插件:
+
 1. **rust-analyzer** - 语言服务器 (比官方 rust 插件好)
 2. **CodeLLDB** - 调试支持
 3. **crates** - Cargo.toml 依赖管理
 4. **Even Better TOML** - TOML 文件支持
 
 配置 `settings.json`:
+
 ```json
 {
   "rust-analyzer.checkOnSave.command": "clippy",
@@ -766,19 +773,20 @@ fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
 
 ### 真实场景基准测试
 
-| 场景 | Node.js | Rust | 性能提升 |
-|------|---------|------|---------|
-| JSON 解析 (大文件) | 1.2s | 0.08s | **15x** |
-| HTTP 服务 (QPS) | 25k | 180k | **7x** |
-| 图像处理 | 3.5s | 0.15s | **23x** |
-| 正则匹配 (大文本) | 2.8s | 0.3s | **9x** |
-| 文件搜索 (1GB) | 8s | 0.4s | **20x** |
+| 场景               | Node.js | Rust  | 性能提升 |
+| ------------------ | ------- | ----- | -------- |
+| JSON 解析 (大文件) | 1.2s    | 0.08s | **15x**  |
+| HTTP 服务 (QPS)    | 25k     | 180k  | **7x**   |
+| 图像处理           | 3.5s    | 0.15s | **23x**  |
+| 正则匹配 (大文本)  | 2.8s    | 0.3s  | **9x**   |
+| 文件搜索 (1GB)     | 8s      | 0.4s  | **20x**  |
 
 **内存使用**: Rust 通常是 Node.js 的 1/5 - 1/10
 
 ### 何时选择 Rust?
 
 ✅ **Rust 更适合**:
+
 - CPU 密集型任务 (编码、加密、压缩)
 - 系统级工具 (CLI、守护进程)
 - WebAssembly 应用
@@ -786,6 +794,7 @@ fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
 - 嵌入式设备
 
 ✅ **Node.js 仍然更好**:
+
 - 快速原型开发
 - I/O 密集型应用
 - 前端工具链 (Webpack、Babel)
@@ -851,16 +860,16 @@ fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
 
 ### 常用类型对照
 
-| JavaScript | Rust |
-|-----------|------|
-| `number` | `i32`, `f64` |
-| `string` | `String`, `&str` |
-| `boolean` | `bool` |
-| `null/undefined` | `Option<T>` |
-| `Array` | `Vec<T>` |
-| `Object` | `HashMap<K,V>`, `struct` |
-| `Promise` | `Future` |
-| `async function` | `async fn` |
+| JavaScript       | Rust                     |
+| ---------------- | ------------------------ |
+| `number`         | `i32`, `f64`             |
+| `string`         | `String`, `&str`         |
+| `boolean`        | `bool`                   |
+| `null/undefined` | `Option<T>`              |
+| `Array`          | `Vec<T>`                 |
+| `Object`         | `HashMap<K,V>`, `struct` |
+| `Promise`        | `Future`                 |
+| `async function` | `async fn`               |
 
 ### 错误处理对照
 
@@ -897,7 +906,7 @@ for (let item of items) {
   console.log(item);
 }
 
-items.forEach(item => console.log(item));
+items.forEach((item) => console.log(item));
 ```
 
 ```rust
@@ -926,6 +935,6 @@ items.iter().for_each(|item| println!("{}", item));
 
 **祝你 Rust 学习之旅顺利! 🦀**
 
-*最后更新: 2025-01*
-*文档版本: 1.0*
-*作者: Claude Code AI Assistant*
+_最后更新: 2025-01_
+_文档版本: 1.0_
+_作者: Claude Code AI Assistant_

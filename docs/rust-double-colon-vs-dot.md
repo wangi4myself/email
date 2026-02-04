@@ -20,6 +20,21 @@ use std::collections::HashMap;
 use crate::routes::subscriptions;
 ```
 
+**TypeScript 类比：**
+```typescript
+// TS 使用 import 语句，用 / 或相对路径
+import { HashMap } from 'std/collections';
+import { subscriptions } from './routes';
+
+// 或者命名空间方式（用 . 而非 ::）
+namespace std {
+  export namespace collections {
+    export class HashMap<K, V> { }
+  }
+}
+const map = new std.collections.HashMap();  // TS 用 .
+```
+
 ### 2. 调用关联函数（静态方法）
 
 关联函数不需要实例，直接通过类型调用：
@@ -48,6 +63,26 @@ impl User {
 let user = User::new("Alice");  // 使用 ::
 ```
 
+**TypeScript 类比：**
+```typescript
+// TS 静态方法用 static 关键字，但调用时用 .
+const arr = Array.from([1, 2, 3]);
+const obj = Object.create(null);
+
+class User {
+    name: string;
+    constructor(name: string) {
+        this.name = name;
+    }
+    // 静态方法（对应 Rust 关联函数）
+    static new(name: string): User {
+        return new User(name);
+    }
+}
+
+const user = User.new("Alice");  // TS 用 . 而 Rust 用 ::
+```
+
 ### 3. 访问枚举变体
 
 ```rust
@@ -64,6 +99,27 @@ let some_value = Option::Some(5);
 let ok_value = Result::Ok::<i32, String>(42);
 ```
 
+**TypeScript 类比：**
+```typescript
+enum Color {
+    Red,
+    Green,
+    Blue,
+}
+
+const c = Color.Red;  // TS 用 . 而 Rust 用 ::
+
+// TS 没有内置 Option，通常用联合类型或命名空间模拟
+type Option<T> = { kind: 'Some'; value: T } | { kind: 'None' };
+
+namespace Option {
+    export function Some<T>(value: T) { return { kind: 'Some' as const, value }; }
+    export function None<T>() { return { kind: 'None' as const }; }
+}
+
+const someValue = Option.Some(5);  // TS 用 .
+```
+
 ### 4. 访问关联常量
 
 ```rust
@@ -76,6 +132,15 @@ impl Circle {
 println!("{}", Circle::PI);  // 使用 ::
 ```
 
+**TypeScript 类比：**
+```typescript
+class Circle {
+    static readonly PI: number = 3.14159;
+}
+
+console.log(Circle.PI);  // TS 用 . 而 Rust 用 ::
+```
+
 ### 5. 指定泛型类型（turbofish 语法）
 
 ```rust
@@ -86,6 +151,15 @@ let numbers: Vec<i32> = "1,2,3"
 
 // 或者
 let parsed = "42".parse::<i32>().unwrap();
+```
+
+**TypeScript 类比：**
+```typescript
+// TS 泛型参数直接用 <> 跟在函数名后，不需要 ::
+function parse<T>(s: string): T { /* ... */ }
+const num = parse<number>("42");  // 用 <> 而非 ::<>
+
+const numbers: Array<number> = [1, 2, 3];
 ```
 
 ---
@@ -105,6 +179,16 @@ let upper = s.to_uppercase(); // &self
 s.push_str(" world");        // &mut self（需要 s 是 mut）
 ```
 
+**TypeScript 类比：**
+```typescript
+const s = "hello";
+
+// TS 实例方法同样用 .
+const len = s.length;              // 实例属性
+const upper = s.toUpperCase();     // 实例方法
+// ✅ 两者语法相同
+```
+
 ### 2. 访问结构体字段
 
 ```rust
@@ -118,6 +202,18 @@ println!("x = {}", p.x);  // 使用 .
 println!("y = {}", p.y);
 ```
 
+**TypeScript 类比：**
+```typescript
+interface Point {
+    x: number;
+    y: number;
+}
+
+const p: Point = { x: 10, y: 20 };
+console.log("x =", p.x);  // ✅ 相同，都用 .
+console.log("y =", p.y);
+```
+
 ### 3. 链式调用
 
 ```rust
@@ -125,6 +221,15 @@ let result = "  hello world  "
     .trim()           // 实例方法
     .to_uppercase()   // 实例方法
     .replace(" ", "_"); // 实例方法
+```
+
+**TypeScript 类比：**
+```typescript
+const result = "  hello world  "
+    .trim()
+    .toUpperCase()
+    .replace(" ", "_");
+// ✅ 完全相同的语法
 ```
 
 ---
@@ -147,14 +252,29 @@ let obj = MyStruct::new();      // :: 因为 new() 没有 self
 obj.do_something();             // .  因为 do_something 有 &self
 ```
 
+**TypeScript 类比：**
+```typescript
+class MyStruct {
+    // static → 静态方法 → 通过类名.调用
+    static new(): MyStruct { return new MyStruct(); }
+
+    // 非 static → 实例方法 → 通过实例.调用
+    doSomething(): void { }
+}
+
+const obj = MyStruct.new();  // . (通过类名调用)
+obj.doSomething();           // . (通过实例调用)
+// TS 都用 .，但 Rust 用 :: 和 . 区分
+```
+
 ### 快速记忆法
 
-| 场景 | 使用 | 示例 |
-|------|------|------|
-| 需要实例才能调用 | `.` | `instance.method()` |
-| 不需要实例，直接通过类型调用 | `::` | `Type::function()` |
-| 访问模块/命名空间 | `::` | `std::io::Result` |
-| 访问字段 | `.` | `struct.field` |
+| 场景 | Rust | TypeScript |
+|------|------|------------|
+| 需要实例才能调用 | `.` | `.` |
+| 不需要实例，直接通过类型调用 | `::` | `.` (static) |
+| 访问模块/命名空间 | `::` | `.` 或 import |
+| 访问字段/属性 | `.` | `.` |
 
 ---
 
@@ -186,6 +306,33 @@ fn main() {
 }
 ```
 
+**TypeScript 类比：**
+```typescript
+import { HashMap } from 'collections';  // import 访问模块
+
+function main() {
+    // 静态方法创建实例
+    const map = new Map<string, string>();
+
+    // . 调用实例方法
+    map.set("key", "value");
+
+    // . 访问"枚举"
+    const option = Option.Some(42);
+
+    // . 调用实例方法
+    const value = option.value;
+
+    // 泛型参数用 <>
+    const numbers: Array<number> = [1, 2, 3];
+    const first = numbers[0];
+
+    // 都用 .
+    const s = String.fromCharCode(104, 101, 108, 108, 111);
+    const len = s.length;
+}
+```
+
 ---
 
 ## 特殊情况：自动解引用
@@ -204,3 +351,31 @@ println!("{}", rr.len());  // 自动多次解引用 &&String
 ```
 
 而 `::` 不会自动解引用，它是静态路径解析。
+
+**TypeScript 类比：**
+```typescript
+// TS 没有显式引用类型，对象本身就是引用
+const s = "hello";
+const r = s;  // 只是另一个变量指向同一个值
+
+s.length;  // 直接访问
+r.length;  // 相同
+
+// TS 没有解引用概念，因为没有 & 引用类型
+```
+
+---
+
+## 总结对比
+
+| 概念 | Rust | TypeScript |
+|------|------|------------|
+| 模块访问 | `::` | `import` / `.` |
+| 静态方法 | `Type::method()` | `Type.method()` |
+| 枚举变体 | `Enum::Variant` | `Enum.Variant` |
+| 静态常量 | `Type::CONST` | `Type.CONST` |
+| 泛型参数 | `::<T>` | `<T>` |
+| 实例方法 | `.method()` | `.method()` |
+| 字段访问 | `.field` | `.field` |
+
+**核心差异**：TypeScript 统一使用 `.`，而 Rust 通过 `::` 和 `.` 的区分让代码更显式地表达"这是类型级操作还是实例级操作"。

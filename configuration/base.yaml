@@ -7,5 +7,7 @@ database:
   password: "password"
   database_name: "newsletter"
 email_client:
-  base_url: "localhost"
-  sender_email: "test@gmail.com"
+  base_url: "https://api.postmarkapp.com"
+  sender_email: "wj572305426@gmail.com"
+  authorization_token: "e1c5eee6-0ead-4333-9b7e-f452c8ef0209"
+  timeout_milliseconds: 10000
