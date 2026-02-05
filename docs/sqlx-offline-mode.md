@@ -26,6 +26,9 @@ cargo sqlx prepare
 
 # 生成缓存（包含测试文件）
 cargo sqlx prepare -- --tests
+
+# 生成缓存（包含所有目标：tests, examples, benches）
+cargo sqlx prepare -- --all-targets
 ```
 
 ### 2. 启用离线模式
@@ -126,8 +129,48 @@ RUN cargo build --release
 
 ## 注意事项
 
-1. **`--tests` 参数**：`cargo sqlx prepare` 默认只扫描 `src/` 目录。如果测试文件中有 `sqlx::query!`，需要加 `-- --tests`
+1. **扫描范围参数**：`cargo sqlx prepare` 默认只扫描 `src/` 目录。根据需要选择：
+   - `-- --tests`：包含测试文件
+   - `-- --all-targets`：包含所有目标（tests, examples, benches）
 
 2. **表结构必须存在**：生成缓存时，数据库必须有完整的表结构（需先执行迁移）
 
 3. **密码安全**：不要将包含真实密码的 `DATABASE_URL` 提交到代码仓库
+
+## 扫描目标详解
+
+`cargo sqlx prepare` 后面的 `--` 用于传递参数给底层的 `cargo check`：
+
+| 参数 | 扫描范围 | 使用场景 |
+|------|----------|----------|
+| (无) | 仅 `src/` | 只有生产代码中有 `query!` |
+| `-- --tests` | `src/` + `tests/` | 测试文件中有 `query!` |
+| `-- --examples` | `src/` + `examples/` | 示例代码中有 `query!` |
+| `-- --benches` | `src/` + `benches/` | 基准测试中有 `query!` |
+| `-- --all-targets` | 所有目标 | 全面扫描（推荐） |
+
+### 推荐用法
+
+```bash
+# 最完整的扫描方式，确保所有 query! 都被缓存
+cargo sqlx prepare -- --all-targets
+```
+
+### 原理说明
+
+`cargo sqlx prepare` 实际上执行的是 `cargo check`，它需要编译代码来发现所有 `sqlx::query!` 宏调用。不同的目标（targets）在不同的编译条件下才会被包含：
+
+- **lib/bin**：默认编译
+- **tests**：需要 `--tests` 或 `--all-targets`
+- **examples**：需要 `--examples` 或 `--all-targets`
+- **benches**：需要 `--benches` 或 `--all-targets`
+
+所以如果你的测试文件 `tests/api/subscriptions.rs` 中有：
+
+```rust
+let saved = sqlx::query!("SELECT email, name, status FROM subscriptions")
+    .fetch_one(&app.db_pool)
+    .await?;
+```
+
+只有使用 `-- --tests` 或 `-- --all-targets` 才能让 SQLx 发现并缓存这条查询。

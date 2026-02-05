@@ -1,0 +1,32 @@
+### Health Check
+GET http://127.0.0.1:8000/health_check
+
+### Subscribe - Valid Data (will send email)
+POST http://127.0.0.1:8000/subscriptions
+Content-Type: application/x-www-form-urlencoded
+
+name=Test&email=wangjin@yadea.com.cn
+
+### Subscribe - Another User
+POST http://127.0.0.1:8000/subscriptions
+Content-Type: application/x-www-form-urlencoded
+
+name=John Doe&email=john@example.com
+
+### Subscribe - Missing Email (should return 400)
+POST http://127.0.0.1:8000/subscriptions
+Content-Type: application/x-www-form-urlencoded
+
+name=Test
+
+### Subscribe - Empty Name (should return 400)
+POST http://127.0.0.1:8000/subscriptions
+Content-Type: application/x-www-form-urlencoded
+
+name=&email=test@example.com
+
+### Subscribe - Invalid Email (should return 400)
+POST http://127.0.0.1:8000/subscriptions
+Content-Type: application/x-www-form-urlencoded
+
+name=Test&email=invalid-email
